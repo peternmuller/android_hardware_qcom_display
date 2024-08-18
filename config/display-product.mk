@@ -19,6 +19,11 @@ PRODUCT_PACKAGES += \
     init.qti.display_boot.rc \
     modetest
 
+ifeq ($(TARGET_USE_AIDL_QTI_MEMTRACK), true)
+PRODUCT_PACKAGES += \
+    vendor.qti.hardware.memtrack-service
+endif
+
 ifneq ($(TARGET_HAS_LOW_RAM),true)
     ifeq ($(TARGET_BOARD_PLATFORM)$(TARGET_BOARD_SUFFIX),bengal_32)
         PRODUCT_PACKAGES += vendor.qti.hardware.display.composer-service-32bit.xml
