@@ -23,6 +23,7 @@ qtidisplay_cc_defaults {
         "-Wno-missing-field-initializers",
         "-Wall",
         "-Werror",
+	"-O3",
     ],
     shared_libs: [
         "liblog",
