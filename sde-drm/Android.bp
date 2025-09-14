@@ -1,12 +1,11 @@
 cc_library_shared {
+
     name: "libsdedrm",
-    vendor: true,
+    defaults: ["qtidisplay_defaults"],
     sanitize: {
         integer_overflow: true,
     },
-    defaults: [
-        "libsdedrm-defaults",
-    ],
+
     shared_libs: [
         "libdrm",
         "libdrmutils",
@@ -15,9 +14,6 @@ cc_library_shared {
     header_libs: [
         "display_headers",
         "qti_kernel_headers",
-    ],
-    include_dirs: [
-        "external/libdrm",
     ],
     cflags: [
         "-Wno-missing-field-initializers",
@@ -37,28 +33,9 @@ cc_library_shared {
         "drm_utils.cpp",
         "drm_pp_manager.cpp",
         "drm_property.cpp",
-        "drm_panel_feature_mgr.cpp",
         "drm_dpps_mgr_imp.cpp",
+        "drm_panel_feature_mgr.cpp",
     ],
-}
 
-soong_config_module_type {
-    name: "libsdedrm_cc_defaults",
-    module_type: "cc_defaults",
-    config_namespace: "libsdedrm",
-    bool_variables: [
-        "uses_dpp_drp", // TARGET_USES_DRM_PP
-    ],
-    properties: [
-        "cflags",
-        "cppflags",
-    ],
-}
-libsdedrm_cc_defaults {
-    name: "libsdedrm-defaults",
-    soong_config_variables: {
-        uses_dpp_drp: {
-            cflags: ["-DPP_DRM_ENABLE"],
-        },
-    },
+    vendor: true,
 }

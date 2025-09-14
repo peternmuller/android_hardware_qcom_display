@@ -27,7 +27,7 @@
 * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <cassert>
+#include <assert.h>
 #include <errno.h>
 #include <sync/sync.h>
 #include <utils/constants.h>

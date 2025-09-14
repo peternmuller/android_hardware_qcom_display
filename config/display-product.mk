@@ -8,17 +8,10 @@ PRODUCT_PACKAGES += \
     android.hardware.graphics.mapper@4.0-impl-qti-display \
     vendor.qti.hardware.display.allocator-service \
     vendor.qti.hardware.display.composer-service \
-    gralloc.$(TARGET_BOARD_PLATFORM) \
-    hwcomposer.$(TARGET_BOARD_PLATFORM) \
     libsdmcore \
     libsdmutils \
     libqdMetaData \
-    libqdMetaData.system \
-    libdisplayconfig \
-    libgralloc.qti \
-    libdisplayconfig.qti \
     libdisplayconfig.vendor \
-    libdisplayconfig.qti.vendor \
     vendor.qti.hardware.display.mapper@2.0.vendor \
     vendor.qti.hardware.display.mapper@3.0.vendor \
     vendor.qti.hardware.display.mapper@4.0.vendor \
@@ -26,16 +19,12 @@ PRODUCT_PACKAGES += \
     init.qti.display_boot.rc \
     modetest
 
-ifneq ($(TARGET_DISABLE_MEMTRACK), true)
-ifeq ($(TARGET_USE_AIDL_QTI_MEMTRACK), true)
-PRODUCT_PACKAGES += \
-    vendor.qti.hardware.memtrack-service
+ifneq ($(TARGET_HAS_LOW_RAM),true)
+    ifeq ($(TARGET_BOARD_PLATFORM)$(TARGET_BOARD_SUFFIX),bengal_32)
+        PRODUCT_PACKAGES += vendor.qti.hardware.display.composer-service-32bit.xml
+    endif
 else
-PRODUCT_PACKAGES += \
-    android.hardware.memtrack@1.0-impl \
-    android.hardware.memtrack@1.0-service \
-    memtrack.$(TARGET_BOARD_PLATFORM)
-endif
+    PRODUCT_PACKAGES += vendor.qti.hardware.display.composer-service-low-ram.xml
 endif
 
 ifneq ($(TARGET_HAS_LOW_RAM),true)
@@ -119,12 +108,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     debug.sf.high_fps_early_gl_phase_offset_ns=-5000000
 endif
 
-ifeq ($(TARGET_1G_DDR_RAM), true)
-PRODUCT_PROPERTY_OVERRIDES += \
-    vendor.display.disable_layer_stitch=1 \
-    vendor.display.disable_cache_manager=1
-endif
-
 ifeq ($(TARGET_BOARD_PLATFORM),monaco)
 PRODUCT_PROPERTY_OVERRIDES += \
     vendor.display.disable_layer_stitch=1
@@ -164,9 +147,8 @@ PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.has_HDR_display=true
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.use_color_management=true
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.wcg_composition_dataspace=143261696
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.protected_contents=true
+PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.set_touch_timer_ms=200
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.force_hwc_copy_for_virtual_displays=true
-PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.max_frame_buffer_acquired_buffers=3
-PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.max_virtual_display_dimension=4096
 
 ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
 # Recovery is enabled, logging is enabled
@@ -183,26 +165,19 @@ PRODUCT_PROPERTY_OVERRIDES +=  vendor.display.enable_async_powermode=1
 
 QMAA_ENABLED_HAL_MODULES += display
 ifeq ($(TARGET_USES_QMAA),true)
-ifeq ($(TARGET_USES_QMAA_OVERRIDE_DISPLAY),true)
-PRODUCT_PROPERTY_OVERRIDES += \
-    vendor.display.enable_null_display=0
-else
-TARGET_IS_HEADLESS := true
-PRODUCT_PROPERTY_OVERRIDES += \
-    vendor.display.enable_null_display=1
-endif
-endif
-
-ifeq ($(TARGET_USES_YCRCB_CAMERA_ENCODE),true)
-$(call soong_config_set,gralloc,uses_ycrcb_camera_encode,true)
-endif
-
-ifeq ($(TARGET_NO_RAW10_CUSTOM_FORMAT),true)
-$(call soong_config_set,gralloc,uses_no_raw10_custom_format,true)
-endif
-
-ifeq ($(TARGET_USES_DRM_PP),true)
-$(call soong_config_set,libsdedrm,uses_dpp_drp,true)
+    ifeq ($(TARGET_USES_QMAA_OVERRIDE_DISPLAY),true)
+        PRODUCT_PROPERTY_OVERRIDES += \
+            vendor.display.enable_null_display=0
+        #Modules that shouldn't be enabled in QMAA go here
+        PRODUCT_PACKAGES += libdrmutils
+        PRODUCT_PACKAGES += libsdedrm
+        PRODUCT_PACKAGES += libgpu_tonemapper
+    else
+    TARGET_IS_HEADLESS := true
+    SOONG_CONFIG_qtidisplay_headless := true
+    PRODUCT_PROPERTY_OVERRIDES += \
+        vendor.display.enable_null_display=1
+    endif
 endif
 
 # Properties using default value:
