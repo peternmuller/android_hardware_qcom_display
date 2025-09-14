@@ -32,6 +32,12 @@ qtidisplay_cc_defaults {
     ],
     lto: {
         thin: true,
+    },	
+    target: {
+        android_arm64: {
+            cflags: ["-fsplit-machine-functions"],
+            ldflags: ["-fsplit-machine-functions"],
+        },
     },
     whole_program_vtables: true,
     soong_config_variables: {
