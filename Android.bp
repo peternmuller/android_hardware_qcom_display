@@ -32,6 +32,7 @@ qtidisplay_cc_defaults {
     lto: {
         thin: true,
     },
+    whole_program_vtables: true,
     soong_config_variables: {
         drmpp: {
             cflags: ["-DPP_DRM_ENABLE"],
